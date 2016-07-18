@@ -59,6 +59,7 @@ add_subdirectory(training)
 add_subdirectory(word-aligner)
 add_subdirectory(extractor)
 add_subdirectory(example_extff)
+add_subdirectory(semparse)
 
 set(CPACK_PACKAGE_VERSION_MAJOR "2015")
 set(CPACK_PACKAGE_VERSION_MINOR "04")

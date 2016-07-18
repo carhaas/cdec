@@ -44,7 +44,7 @@ class Decoder {
  public:
   Decoder(int argc, char** argv);
   Decoder(std::istream* config_file);
-  bool Decode(const std::string& input, DecoderObserver* observer = NULL);
+  bool Decode(const std::string& input, DecoderObserver* observer = NULL, std::vector<std::string>* return_output = NULL, bool* parse = NULL);
 
   // access this to either *read* or *write* to the decoder's last
   // weight vector (i.e., the weights of the finest past)

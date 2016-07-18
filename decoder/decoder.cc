@@ -163,7 +163,7 @@ ostream& operator<<(ostream& os, const RescoringPass& rp) {
 struct DecoderImpl {
   DecoderImpl(po::variables_map& conf, int argc, char** argv, istream* cfg);
   ~DecoderImpl();
-  bool Decode(const string& input, DecoderObserver*);
+  bool Decode(const string& input, DecoderObserver*, std::vector<std::string>*, bool*);
   vector<weight_t>& CurrentWeightVector() {
     return (rescoring_passes.empty() ? *init_weights : *rescoring_passes.back().weight_vector);
   }
@@ -688,10 +688,10 @@ Decoder::Decoder(istream* cfg) { pimpl_.reset(new DecoderImpl(conf,0,0,cfg)); }
 Decoder::Decoder(int argc, char** argv) { pimpl_.reset(new DecoderImpl(conf,argc, argv, 0)); }
 Decoder::~Decoder() {}
 void Decoder::SetId(int next_sent_id) { pimpl_->SetId(next_sent_id); }
-bool Decoder::Decode(const string& input, DecoderObserver* o) {
+bool Decoder::Decode(const string& input, DecoderObserver* o, std::vector<std::string>* r, bool* parse) {
   bool del = false;
   if (!o) { o = new DecoderObserver; del = true; }
-  const bool res = pimpl_->Decode(input, o);
+  const bool res = pimpl_->Decode(input, o, r, parse);
   if (del) delete o;
   return res;
 }
@@ -723,7 +723,7 @@ static inline void ApplyWeightDelta(const string &delta_b64, vector<weight_t> *w
   }
 }
 
-bool DecoderImpl::Decode(const string& input, DecoderObserver* o) {
+bool DecoderImpl::Decode(const string& input, DecoderObserver* o, std::vector<std::string>* return_output, bool* parse) {
   string buf = input;
   NgramCache::Clear();   // clear ngram cache for remote LM (if used)
   Timer::Summarize();
@@ -770,7 +770,12 @@ bool DecoderImpl::Decode(const string& input, DecoderObserver* o) {
   translator->SentenceComplete();
 
   if (!translation_successful) {
-    if (!SILENT) { cerr << "  NO PARSE FOUND.\n"; }
+    if (!SILENT) { 
+			cerr << "  NO PARSE FOUND.\n";
+			if(parse!=NULL){
+					*parse = false;		
+			}
+		}
     o->NotifySourceParseFailure(smeta);
     o->NotifyDecodingComplete(smeta);
     if (conf.count("show_conditional_prob")) {
@@ -975,7 +980,7 @@ bool DecoderImpl::Decode(const string& input, DecoderObserver* o) {
     if (kbest && !has_ref) {
       //TODO: does this work properly?
       const string deriv_fname = conf.count("show_derivations") ? str("show_derivations",conf) : "-";
-      oracle.DumpKBest(sent_id, forest, conf["k_best"].as<int>(), unique_kbest,mr_mira_compat, smeta.GetSourceLength(), "-", deriv_fname);
+      oracle.DumpKBest(sent_id, forest, conf["k_best"].as<int>(), unique_kbest,mr_mira_compat, smeta.GetSourceLength(), "-", deriv_fname, return_output);
     } else if (csplit_output_plf) {
       cout << HypergraphIO::AsPLF(forest, false) << endl;
     } else {
@@ -1106,7 +1111,7 @@ bool DecoderImpl::Decode(const string& input, DecoderObserver* o) {
       if (conf.count("graphviz")) forest.PrintGraphviz();
       if (kbest) {
         const string deriv_fname = conf.count("show_derivations") ? str("show_derivations",conf) : "-";
-        oracle.DumpKBest(sent_id, forest, conf["k_best"].as<int>(), unique_kbest, mr_mira_compat, smeta.GetSourceLength(), "-", deriv_fname);
+        oracle.DumpKBest(sent_id, forest, conf["k_best"].as<int>(), unique_kbest, mr_mira_compat, smeta.GetSourceLength(), "-", deriv_fname, return_output);
       }
       if (conf.count("show_conditional_prob")) {
         const prob_t ref_z = Inside<prob_t, EdgeProb>(forest);

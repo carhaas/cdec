@@ -154,6 +154,8 @@ rst_parser/mst_train
 rst_parser/random_tree
 rst_parser/rst_parse
 rst_parser/rst_train
+semparse/bin/*
+semparse/work/*
 sa-extract/calignment.c
 sa-extract/cdat.c
 sa-extract/cfloatlist.c

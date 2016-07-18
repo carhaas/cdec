@@ -1,4 +1,6 @@
 `cdec` is a research platform for machine translation and similar structured prediction problems.
+This version, `cdec-semparse`, adds scripts specific to semantic parsing. It has been created with the [NLmaps corpus](http://www.cl.uni-heidelberg.de/statnlpgroup/nlmaps/) in mind. Other semantic parsing corpora can be used as well, as long as the MRL formulae can be linearised.
+All the information relevant to semantic parsing may be found in the subfolder semparse.
 
 [![Build Status](https://travis-ci.org/redpony/cdec.svg?branch=master)](https://travis-ci.org/redpony/cdec)
 

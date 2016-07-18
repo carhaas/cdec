@@ -10,49 +10,49 @@ endif()
 
 find_package(GTest)
 find_package(GMock)
-if(GTEST_FOUND)
- if(GMOCK_FOUND)
-  #rule_factory_test.cc
-  set(TEST_SRCS alignment_test.cc
-    data_array_test.cc
-    fast_intersector_test.cc
-    grammar_extractor_test.cc
-    matchings_finder_test.cc
-    matchings_sampler_test.cc
-    phrase_location_sampler_test.cc
-    phrase_test.cc
-    precomputation_test.cc
-    rule_extractor_helper_test.cc
-    rule_extractor_test.cc
-    scorer2_test.cc
-    suffix_array_sampler_test.cc
-    suffix_array_test.cc
-    target_phrase_extractor_test.cc
-    translation_table_test.cc
-    vocabulary_test.cc)
-  INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS})
-  INCLUDE_DIRECTORIES(${GMOCK_INCLUDE_DIRS})
-  foreach(testSrc ${TEST_SRCS})
-    #Extract the filename without an extension (NAME_WE)
-    get_filename_component(testName ${testSrc} NAME_WE)
-
-    #Add compile target
-    add_executable(${testName} ${testSrc})
-
-    #link to Boost libraries AND your targets and dependencies
-    target_link_libraries(${testName} extractor ${GMOCK_BOTH_LIBRARIES} ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
-
-    #I like to move testing binaries into a testBin directory
-    set_target_properties(${testName} PROPERTIES 
-      RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR})
-
-    #Finally add it to test execution - 
-    #Notice the WORKING_DIRECTORY and COMMAND
-    add_test(NAME ${testName} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${testName} 
-       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  endforeach(testSrc)
- endif(GMOCK_FOUND)
-endif(GTEST_FOUND)
+#if(GTEST_FOUND)
+# if(GMOCK_FOUND)
+#  #rule_factory_test.cc
+#  set(TEST_SRCS alignment_test.cc
+#    data_array_test.cc
+#    fast_intersector_test.cc
+#    grammar_extractor_test.cc
+#    matchings_finder_test.cc
+#    matchings_sampler_test.cc
+#    phrase_location_sampler_test.cc
+#    phrase_test.cc
+#    precomputation_test.cc
+#    rule_extractor_helper_test.cc
+#    rule_extractor_test.cc
+#    scorer2_test.cc
+#    suffix_array_sampler_test.cc
+#    suffix_array_test.cc
+#    target_phrase_extractor_test.cc
+#    translation_table_test.cc
+#    vocabulary_test.cc)
+#  INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS})
+#  INCLUDE_DIRECTORIES(${GMOCK_INCLUDE_DIRS})
+#  foreach(testSrc ${TEST_SRCS})
+#    #Extract the filename without an extension (NAME_WE)
+#    get_filename_component(testName ${testSrc} NAME_WE)
+#
+#    #Add compile target
+#    add_executable(${testName} ${testSrc})
+#
+#    #link to Boost libraries AND your targets and dependencies
+#    target_link_libraries(${testName} extractor ${GMOCK_BOTH_LIBRARIES} ${GTEST_BOTH_LIBRARIES} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
+#
+#    #I like to move testing binaries into a testBin directory
+#    set_target_properties(${testName} PROPERTIES 
+#      RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR})
+#
+#    #Finally add it to test execution - 
+#    #Notice the WORKING_DIRECTORY and COMMAND
+#    add_test(NAME ${testName} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/${testName} 
+#       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+#  endforeach(testSrc)
+# endif(GMOCK_FOUND)
+#endif(GTEST_FOUND)
 
 set(sacompile_SRCS sacompile.cc)
 add_executable(sacompile ${sacompile_SRCS})
@@ -66,10 +66,24 @@ set(extract_SRCS extract.cc)
 add_executable(extract ${extract_SRCS})
 target_link_libraries(extract extractor utils ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${BZIP2_LIBRARIES} ${LIBLZMA_LIBRARIES})
 
+find_package(nanomsg)
+if(NANOMSG_FOUND)
+  include_directories(${NANOMSG_INCLUDE_DIR})
+
+  set(extract_request_STAT_SRCS extract_request.cc)
+  add_library(extract_request STATIC ${extract_request_STAT_SRCS})
+  target_link_libraries(extract_request ${NANOMSG_STATIC})
+
+  set(extract_daemon_SRCS extract_daemon.cc)
+  add_executable(extract_daemon ${extract_daemon_SRCS})
+  target_link_libraries(extract_daemon extractor utils ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${BZIP2_LIBRARIES} ${LIBLZMA_LIBRARIES} ${NANOMSG_LIBRARIES})
+endif(NANOMSG_FOUND)
+
 set(extractor_STAT_SRCS
     alignment.cc
     backoff_sampler.cc
     data_array.cc
+    extract_request.cc
     fast_intersector.cc
     features/count_source_target.cc
     features/feature.cc
@@ -111,6 +125,7 @@ set(extractor_STAT_SRCS
     alignment.h
     backoff_sampler.h
     data_array.h
+    extract_request.h
     fast_intersector.h
     grammar.h
     grammar_extractor.h
