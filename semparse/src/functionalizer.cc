@@ -125,7 +125,7 @@ bool Functionalizer::check_MRL_tree(std::string check_mrl, const std::string& cf
   check_mrl = boost::regex_replace(check_mrl, boost::regex("\\("), "( ");
   check_mrl = boost::regex_replace(check_mrl, boost::regex(","), " , ");
   check_mrl = boost::regex_replace(check_mrl, boost::regex("\\)"), " )");
-  check_mrl = boost::regex_replace(check_mrl, boost::regex("name:.*? \\)"), "name:lg )");
+  check_mrl = boost::regex_replace(check_mrl, boost::regex("name:.*? \\)"), "name:lg' )");
   check_mrl = boost::regex_replace(check_mrl, boost::regex("keyval\\( '([^\\(\\)]+?)' , '[^\\(\\)]+?' "), "keyval( '$1' , 'valvariable' "); // the comma is there to ensure that only -value- positions are replaced with valvariable
   check_mrl = boost::regex_replace(check_mrl, boost::regex("keyval\\( '([^\\(\\)]+?)' , or\\( '[^\\(\\)]+?' , '[^\\(\\)]+?' "), "keyval( '$1' , or( 'valvariable' , 'valvariable' "); //nasty hack for when we have a or() around values:  or( ' greek ' , ' valvariable ' )
   check_mrl = boost::regex_replace(check_mrl, boost::regex("keyval\\( '([^\\(\\)]+?)' , and\\( '[^\\(\\)]+?' , '[^\\(\\)]+?' "), "keyval( '$1' , and( 'valvariable' , 'valvariable' "); //nasty hack for when we have a and() around values:  and( ' greek ' , ' valvariable ' )

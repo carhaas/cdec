@@ -1,7 +1,7 @@
 #!/bin/bash
 #usage: ./run_semparse.sh train 
 #or ./run_semparse.sh test
-#or ./run_semparse.sh both
+# or ./run_semparse.sh both
 
 # Define a timestamp function
 timestamp() {
@@ -9,13 +9,13 @@ timestamp() {
 }
 
 #shared variables
-CDEC=/path/to/cdec-semparse
-#if giza or moses are left blank, fast align is used instead
-MOSES=/path/to/moses/
-GIZA=/path/to/giza-pp/bin/
-SRILM_NGRAM_COUNT=/path/to/srilm_1_7_0/lm/bin/i686-m64/ngram-count
-OVERPASS_NLMAPS=/path/to/overpass-nlmaps/
-DB_DIR=/path/to/db/
+CDEC=/workspace/osm/cdec-semparse
+#if giza or moses are set to "", fast align is used instead
+MOSES=/toolbox/moses/
+GIZA=/toolbox/giza-pp/bin/
+SRILM_NGRAM_COUNT=/toolbox/srilm_1_7_0/lm/bin/i686-m64/ngram-count
+OVERPASS_NLMAPS=/workspace/osm/overpass/osm3s_v0.7.51/
+DB_DIR=/workspace/osm/overpass/db/
 FILE_LANG=en
 
 #train variable
@@ -25,11 +25,11 @@ SYMM=intersect
 TIGHT=0
 STEM=1
 SPARSE=0
-NR_MERT_RUNS=3
-PARALLEL_MERT_JOBS=1 #modify this value to use more cores for mert training
+NR_MERT_RUNS=1
+PARALLEL_MERT_JOBS=16 #modify this value to use more cores for mert training
 
 #test variables
-DIR=/path/to/model/
+DIR=/workspace/osm/cdec-semparse/semparse/work/2016-07-12T10.32.47/
 TEST=nlmaps.test #assumes that the following files exist: nlmaps.test.mrl, nlmaps.test.FILE_LANG and nlmaps.test.gold
 KBEST=100
 CFG=$CDEC/semparse/data/nlmaps/nlmaps.cfg #leave blank to use no cfg
@@ -102,8 +102,8 @@ if [ $1 == "train" ] || [ $1 == "both" ]; then
 	# create lm
 	echo "Creating language model"
 	/toolbox/srilm_1_7_0/lm/bin/i686-m64/ngram-count -text $DIR/train.mrl.lm -order 5 -no-sos -no-eos -lm $DIR/mrl.arpa -unk
-	
 	# get grammar
+
 	# compile
 	echo "Compiling grammar"
 	$CDEC/extractor/sacompile \
@@ -175,7 +175,7 @@ if [ $1 == "test" ] || [ $1 == "both" ]; then
 	echo "Preparing test data"
 	$CDEC/semparse/bin/extract_data -d $DIR -f $CDEC/semparse/data/nlmaps/$TEST -t test -l $FILE_LANG -s $STEM
 
-	extract test set
+	# extract test set
 	echo "Extracting grammar for test set"
 	$CDEC/extractor/extract \
 		-c $DIR/extract.ini \
