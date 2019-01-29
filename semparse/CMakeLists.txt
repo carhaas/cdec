@@ -29,7 +29,7 @@ target_link_libraries(extract_data semparse ${Boost_LIBRARIES})
 
 set(decode_test_SRCS src/decode_test.cc)
 add_executable(decode_test ${decode_test_SRCS})
-target_link_libraries(decode_test semparse ${Boost_LIBRARIES} libcdec utils ${ZLIB_LIBRARIES} klm klm_util klm_util_double ${BZIP2_LIBRARIES} ${LIBLZMA_LIBRARIES} ksearch mteval)
+target_link_libraries(decode_test semparse ${Boost_LIBRARIES} libcdec utils ${ZLIB_LIBRARIES} klm klm_util klm_util_double ${BZIP2_LIBRARIES} ${LIBLZMA_LIBRARIES} ksearch mteval ${CMAKE_DL_LIBS})
 
 set(eval_SRCS src/eval.cc)
 add_executable(eval ${eval_SRCS})
